@@ -37,6 +37,33 @@ app.post('/add-todo', function(req, res) {
     })
 });
 
+//edit a record
+app.post('/edit-todo', (req, res) => {
+    let text = req.body.text;
+    let id = req.body.id;
+    let completed = !req.body.completed;
+    let sql = ''
+    
+    if(text) {
+        sql = "UPDATE todos SET text = " + 
+            mysql.escape(text) + " WHERE id = " + mysql.escape(id);
+    }
+    else {
+        sql = "UPDATE todos SET completed = " + 
+            mysql.escape(completed) + " WHERE id = " + mysql.escape(id);
+    }
+
+    db.query(sql, (err, result) => {
+        if(err) {
+            res.json({text: 'Something went wrong when updating a todo.'});
+            console.log(err);
+            return;
+        }
+        console.log(result);
+        res.json({text: 'todo updated.'});
+    });
+});
+
 // delete a todo
 app.post('/delete-todo', (req, res) => {
     let id = req.body.id;
