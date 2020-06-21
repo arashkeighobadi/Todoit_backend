@@ -22,17 +22,49 @@ app.post('/add-todo', function(req, res) {
 
     let text = req.body.text;
 
-    let sql = "INSERT INTO todos (text, completed) VALUES ('" + text + "', false)"
+    let sql = "INSERT INTO todos (text, completed) VALUES ('" + text + "', false)";
     db.query(sql, (err, result) => {
         if(err) {
             res.json({text: 'Insertion was not successful!'});
             console.log(err);
-            return
+            return;
         }
         console.log(result);
-        res.json({text: 'todo with text '+ text +' inserted.'});
+        res.json({text: 'todo with text '+ text +' inserted.', success: true});
     })
     console.log('Post request successful! text: ' + text );
+});
+
+const loggedInUsers= [];
+
+app.post('/login', function(req, res) {
+    let email = req.body.email;
+    let password = req.body.password;
+    
+    let sql = 'SELECT * FROM users WHERE email = "' + email + '"';
+    db.query(sql, (err, result) => {
+        if(err) {
+            res.json({text: 'Login was not successful!', code: 3});
+            console.log(err);
+            return;
+        }
+        if(!result[0]){
+            loggedInUsers.push(email);
+            res.json({text: 'No result found in the database!', code: 4});
+            console.log('Unsuccessful login. email: ' + email );
+            return;
+        }
+        
+        if(result[0].password === password){
+            loggedInUsers.push(email);
+            res.json({text: 'You are logged in.', code: 1});
+            console.log('User logged in. email: ' + email );
+        }
+        else {
+            res.json({text: 'Wrong Password!', code: 2});
+            console.log('Unsuccessful login (wrong password). email: ' + email );
+        }
+    })
 });
 
 //testing the connection
@@ -56,11 +88,21 @@ app.get('/createdb', (req, res, err) => {
 
 //create todos table
 app.get('/create-todos-table', (req, res) => {
-    let sql = 'CREATE TABLE todos(id INT PRIMARY KEY AUTO_INCREMENT, text VARCHAR(255) NOT NULL, completed BOOLEAN)'
+    let sql = 'CREATE TABLE todos(id INT PRIMARY KEY AUTO_INCREMENT, text VARCHAR(255) NOT NULL, completed BOOLEAN)';
     db.query(sql, (err, result) => {
         if(err) console.log(err);
         console.log(result);
         res.send('todos table created.');
+    })
+})
+
+//create todos table
+app.get('/create-users-table', (req, res) => {
+    let sql = 'CREATE TABLE users(email VARCHAR(255) NOT NULL PRIMARY KEY, password VARCHAR(255) NOT NULL)';
+    db.query(sql, (err, result) => {
+        if(err) console.log(err);
+        console.log(result);
+        res.send('users table created.');
     })
 })
 
@@ -75,12 +117,15 @@ app.get('/get-todos', (req, res) => {
 })
 
 //select a single record
-app.get('/get-todo/:id', (req, res) => {
-    let sql = 'SELECT * FROM todos WHERE id = ' + connection.escape(req.params.id)
+app.get('/get-todo/', (req, res) => {
+    let sql = 'SELECT * FROM todos WHERE id = 1'
     db.query(sql, (err, result) => {
-        if(err) console.log(err);
-        console.log(result);
-        res.send('todo with id '+ connection.escape(req.params.id) +' fetched.');
+        if(err) {
+            console.log(err)
+            return;
+        };
+        console.log(result[0].text);
+        res.send('todo with id 1 fetched.');
     })
 })
 
