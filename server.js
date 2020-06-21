@@ -21,8 +21,11 @@ app.use(express.json());
 app.post('/add-todo', function(req, res) {
 
     let text = req.body.text;
+    let email = req.body.email;
 
-    let sql = "INSERT INTO todos (text, completed) VALUES ('" + text + "', false)";
+    let sql = "INSERT INTO todos (text, completed, owner) VALUES (" + 
+        mysql.escape(text) + ", false, " + mysql.escape(email) + ")";
+        
     db.query(sql, (err, result) => {
         if(err) {
             res.json({text: 'Insertion was not successful!'});
