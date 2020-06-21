@@ -49,7 +49,6 @@ app.post('/login', function(req, res) {
             return;
         }
         if(!result[0]){
-            loggedInUsers.push(email);
             res.json({text: 'No result found in the database!', code: 4});
             console.log('Unsuccessful login. email: ' + email );
             return;
@@ -64,6 +63,49 @@ app.post('/login', function(req, res) {
             res.json({text: 'Wrong Password!', code: 2});
             console.log('Unsuccessful login (wrong password). email: ' + email );
         }
+    })
+});
+
+app.post('/register', function(req, res) {
+    let email = req.body.email;
+    let password = req.body.password1;
+    
+    let search_sql = 'SELECT * FROM users WHERE email = "' + email + '"';
+    db.query(search_sql, (err, result) => {
+        if(err) {
+            res.json({text: 'Registeration was not successful!', code: 3});
+            console.log(err);
+            return;
+        }
+        if(result[0]){
+            res.json({text: 'An account with this email is already registered.', code: 2});
+            console.log('Unsuccessful registration (email exists in the db). email: ' + email );
+            return;
+        }
+
+        // send the insert query
+        let insert_sql = "INSERT INTO users (email, password) VALUES (" + 
+            mysql.escape(email) + ", " + mysql.escape(password) +")";
+
+        db.query(insert_sql, (err, result) => {
+            if(err) {
+                res.json({text: 'Registeration was not successful!', code: 3});
+                console.log(err);
+                return;
+            }
+            console.log(result);
+            res.json({text: 'You are registered.', code: 1});
+        })
+        
+        // if(result[0].password === password){
+        //     loggedInUsers.push(email);
+        //     res.json({text: 'You are logged in.', code: 1});
+        //     console.log('User logged in. email: ' + email );
+        // }
+        // else {
+        //     res.json({text: 'Wrong Password!', code: 2});
+        //     console.log('Unsuccessful login (wrong password). email: ' + email );
+        // }
     })
 });
 
