@@ -15,10 +15,20 @@ db.connect((err) => {
 
 const app = express();
 
+app.use(express.json());
+
+app.post('/add-todo', function(req, res) {
+    let text = JSON.stringify(req.body);
+    let id = req.body;
+
+    console.log('Post request successful! id: ' + id + ' text: ' + text );
+});
+
 //testing the connection
 app.get('/connect', (req, res) => {
     // if(err) throw err;
-    res.send('You reached the server!');
+    // res.send('You reached the server!');
+    res.json({text: 'You reached the server!'});
 })
 
 //create a database
