@@ -35,9 +35,67 @@ app.post('/add-todo', function(req, res) {
         console.log(result);
         res.json({text: 'todo with text '+ text +' inserted.', success: true});
     })
-    console.log('Post request successful! text: ' + text );
 });
 
+// delete a todo
+app.post('/delete-todo', (req, res) => {
+    let id = req.body.id;
+    let email = req.body.email;
+    console.log('delete request received... id: ' + id + ' email: ' + email);
+
+    let select_sql = 'SELECT * FROM todos WHERE id = ' + mysql.escape(id);
+    db.query(select_sql, (err, result) => {
+        if(err) {
+            res.json({text: 'Error while searchin for todo on the db!'});
+            console.log(err);
+            return;
+        }
+        if(!result[0]){
+            res.json({text: 'This todo was not found in the db!'});
+            console.log(result);
+            return;
+        }
+        if(result[0].owner === email){
+            let delete_sql = 'DELETE FROM todos WHERE id = ' + mysql.escape(id);
+            db.query(delete_sql, (err, result) => {
+                if(err){
+                    res.json({text: 'Error while trying to delete the todo!'});
+                    console.log(err);
+                    return;
+                }
+                res.json({text: 'todo deleted successfully.'})
+                console.log(result)
+            });
+        }
+        else{
+            console.log('emails dont match' + result[0]);
+        }
+        // res.json({text: 'todo was deleted.', data: result})
+        // console.log(result);
+    });
+})
+
+//fetch all todos of a user
+app.post('/fetch-todos', function(req, res) {
+
+    let email = req.body.email;
+
+    console.log('fetch request from email: ' + email);
+
+    let sql = "SELECT * from todos WHERE owner = " + mysql.escape(email);
+
+    db.query(sql, (err, result) => {
+        if(err) {
+            res.json({text: 'Fetching todos was not successful!'});
+            console.log(err);
+            return;
+        }
+        res.json({text: 'Fetching todos was successful!', data: result})
+        console.log(result);
+    })
+});
+
+// keep track of who is logged in currently
 const loggedInUsers= [];
 
 app.post('/login', function(req, res) {
