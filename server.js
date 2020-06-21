@@ -9,7 +9,7 @@ const db = mysql.createConnection({
 })
 
 db.connect((err) => {
-    if(err) throw err;
+    if(err) console.log(err);
     console.log('MySql connected...');
 })
 
@@ -17,11 +17,22 @@ const app = express();
 
 app.use(express.json());
 
+//insert into todos table
 app.post('/add-todo', function(req, res) {
-    let text = JSON.stringify(req.body);
-    let id = req.body;
 
-    console.log('Post request successful! id: ' + id + ' text: ' + text );
+    let text = req.body.text;
+
+    let sql = "INSERT INTO todos (text, completed) VALUES ('" + text + "', false)"
+    db.query(sql, (err, result) => {
+        if(err) {
+            res.json({text: 'Insertion was not successful!'});
+            console.log(err);
+            return
+        }
+        console.log(result);
+        res.json({text: 'todo with text '+ text +' inserted.'});
+    })
+    console.log('Post request successful! text: ' + text );
 });
 
 //testing the connection
