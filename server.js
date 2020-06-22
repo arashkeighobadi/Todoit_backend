@@ -1,17 +1,6 @@
 const express = require('express');
 const mysql = require('mysql');
-
-const db = mysql.createConnection({
-    host:       'localhost',
-    user:       'root',
-    password:   'root',
-    database:   'todoit'
-})
-
-db.connect((err) => {
-    if(err) console.log(err);
-    console.log('MySql connected...');
-})
+const db = require('./db');
 
 const app = express();
 
@@ -24,7 +13,7 @@ app.post('/add-todo', function(req, res) {
     let email = req.body.email;
 
     let sql = "INSERT INTO todos (text, completed, owner) VALUES (" + 
-        mysql.escape(text) + ", false, " + mysql.escape(email) + ")";
+        db.escape(text) + ", false, " + db.escape(email) + ")";
         
     db.query(sql, (err, result) => {
         if(err) {
@@ -46,11 +35,11 @@ app.post('/edit-todo', (req, res) => {
     
     if(text) {
         sql = "UPDATE todos SET text = " + 
-            mysql.escape(text) + " WHERE id = " + mysql.escape(id);
+            db.escape(text) + " WHERE id = " + db.escape(id);
     }
     else {
         sql = "UPDATE todos SET completed = " + 
-            mysql.escape(completed) + " WHERE id = " + mysql.escape(id);
+            db.escape(completed) + " WHERE id = " + db.escape(id);
     }
 
     db.query(sql, (err, result) => {
@@ -70,7 +59,7 @@ app.post('/delete-todo', (req, res) => {
     let email = req.body.email;
     console.log('delete request received... id: ' + id + ' email: ' + email);
 
-    let select_sql = 'SELECT * FROM todos WHERE id = ' + mysql.escape(id);
+    let select_sql = 'SELECT * FROM todos WHERE id = ' + db.escape(id);
     db.query(select_sql, (err, result) => {
         if(err) {
             res.json({text: 'Error while searchin for todo on the db!'});
@@ -83,7 +72,7 @@ app.post('/delete-todo', (req, res) => {
             return;
         }
         if(result[0].owner === email){
-            let delete_sql = 'DELETE FROM todos WHERE id = ' + mysql.escape(id);
+            let delete_sql = 'DELETE FROM todos WHERE id = ' + db.escape(id);
             db.query(delete_sql, (err, result) => {
                 if(err){
                     res.json({text: 'Error while trying to delete the todo!'});
@@ -97,8 +86,6 @@ app.post('/delete-todo', (req, res) => {
         else{
             console.log('emails dont match' + result[0]);
         }
-        // res.json({text: 'todo was deleted.', data: result})
-        // console.log(result);
     });
 })
 
@@ -109,8 +96,7 @@ app.post('/fetch-todos', function(req, res) {
 
     console.log('fetch request from email: ' + email);
 
-    let sql = "SELECT * from todos WHERE owner = " + mysql.escape(email);
-
+    let sql = "SELECT * from todos WHERE owner = " + db.escape(email);
     db.query(sql, (err, result) => {
         if(err) {
             res.json({text: 'Fetching todos was not successful!'});
@@ -129,7 +115,7 @@ app.post('/login', function(req, res) {
     let email = req.body.email;
     let password = req.body.password;
     
-    let sql = 'SELECT * FROM users WHERE email = "' + email + '"';
+    let sql = 'SELECT * FROM users WHERE email = ' + db.escape(email);
     db.query(sql, (err, result) => {
         if(err) {
             res.json({text: 'Login was not successful!', code: 3});
@@ -173,7 +159,7 @@ app.post('/register', function(req, res) {
 
         // send the insert query
         let insert_sql = "INSERT INTO users (email, password) VALUES (" + 
-            mysql.escape(email) + ", " + mysql.escape(password) +")";
+            db.escape(email) + ", " + db.escape(password) +")";
 
         db.query(insert_sql, (err, result) => {
             if(err) {
