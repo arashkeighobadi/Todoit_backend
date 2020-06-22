@@ -170,16 +170,6 @@ app.post('/register', function(req, res) {
             console.log(result);
             res.json({text: 'You are registered.', code: 1});
         })
-        
-        // if(result[0].password === password){
-        //     loggedInUsers.push(email);
-        //     res.json({text: 'You are logged in.', code: 1});
-        //     console.log('User logged in. email: ' + email );
-        // }
-        // else {
-        //     res.json({text: 'Wrong Password!', code: 2});
-        //     console.log('Unsuccessful login (wrong password). email: ' + email );
-        // }
     })
 });
 
@@ -201,60 +191,6 @@ app.get('/createdb', (req, res, err) => {
         res.send('Database created.');
     })
 })
-
-//create todos table
-app.get('/create-todos-table', (req, res) => {
-    let sql = 'CREATE TABLE todos(id INT PRIMARY KEY AUTO_INCREMENT, text VARCHAR(255) NOT NULL, completed BOOLEAN)';
-    db.query(sql, (err, result) => {
-        if(err) console.log(err);
-        console.log(result);
-        res.send('todos table created.');
-    })
-})
-
-//create todos table
-app.get('/create-users-table', (req, res) => {
-    let sql = 'CREATE TABLE users(email VARCHAR(255) NOT NULL PRIMARY KEY, password VARCHAR(255) NOT NULL)';
-    db.query(sql, (err, result) => {
-        if(err) console.log(err);
-        console.log(result);
-        res.send('users table created.');
-    })
-})
-
-//select all records from the todos table
-app.get('/get-todos', (req, res) => {
-    let sql = 'SELECT * FROM todos'
-    db.query(sql, (err, result) => {
-        if(err) console.log(err);
-        console.log(result);
-        res.send('todos fetched.');
-    })
-})
-
-//select a single record
-app.get('/get-todo/', (req, res) => {
-    let sql = 'SELECT * FROM todos WHERE id = 1'
-    db.query(sql, (err, result) => {
-        if(err) {
-            console.log(err)
-            return;
-        };
-        console.log(result[0].text);
-        res.send('todo with id 1 fetched.');
-    })
-})
-
-app.get('/delete-post/:id', (req, res) => {
-    let sql = 'DELETE * FROM todos WHERE id = ' + connection.escape(req.params.id)
-    db.query(sql, (err, result) => {
-        if(err) console.log(err);
-        console.log(result);
-        res.send('todo with id '+ connection.escape(req.params.id) +' deleted.');
-    })
-})
-
-
 
 app.listen('3000', () => {
     console.log('server started on port 3000...');
