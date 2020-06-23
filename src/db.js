@@ -1,20 +1,21 @@
 const mysql = require('mysql');
-const CREATE_TODOIT_DB_SQL = 'CREATE DATABASE todoit'
+const dbKey = require('../keys/keys');
+const CREATE_TODOIT_DB_SQL = 'CREATE DATABASE todoit';
 const CREATE_TODOS_TABLE_SQL = 'CREATE TABLE todos(id INT PRIMARY KEY AUTO_INCREMENT, text VARCHAR(255) NOT NULL, completed BOOLEAN, owner VARCHAR(255) NOT NULL)';
 const CREATE_USERS_TABLE_SQL = 'CREATE TABLE users(email VARCHAR(255) NOT NULL PRIMARY KEY, password VARCHAR(255) NOT NULL)';
 
 
 const tmpCon = mysql.createConnection({
-    host:       'localhost',
-    user:       'root',
-    password:   'root',
+    host:       dbKey.host,
+    user:       dbKey.user,
+    password:   dbKey.password,
 });
 
 const connection = mysql.createConnection({
-    host:       'localhost',
-    user:       'root',
-    password:   'root',
-    database:   'todoit',
+    host:       dbKey.host,
+    user:       dbKey.user,
+    password:   dbKey.password,
+    database:   dbKey.database,
 });
 
 tmpCon.connect((err) => {
